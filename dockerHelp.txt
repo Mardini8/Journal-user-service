@@ -1,0 +1,36 @@
+Efter vi har ändrat i backend.
+
+maven clean
+maven package
+
+docker build -t patientsystem-backend .
+docker rm -f patientsystem-backend
+docker run -d \
+    --name patientsystem-backend \
+    --network patientsystem-net \
+    -p 8080:8080 \
+    patientsystem-backend
+
+
+
+om man inte gjort det gör först:
+
+docker network create patientsystem-net
+
+docker run -d \
+    --name mysql-container \
+    --network patientsystem-net \
+    -p 3306:3306 \
+    -e MYSQL_ROOT_PASSWORD=supersecret_root \
+    -e MYSQL_DATABASE=patientsystemdb \
+    -e MYSQL_USER=user \
+    -e MYSQL_PASSWORD=supersecret \
+    -v mysql_data:/var/lib/mysql \
+    mysql:8.0
+
+
+Logga in i docker mysql:
+docker exec -it mysql-container mysql -u user -p
+
+DROP DATABASE patientsystemdb;
+CREATE DATABASE patientsystemdb;
