@@ -3,13 +3,13 @@ Efter vi har ändrat i backend.
 maven clean
 maven package
 
-docker build -t patientsystem-backend .
-docker rm -f patientsystem-backend
+docker build -t patientsystem-user .
+docker rm -f patientsystem-user
 docker run -d \
-    --name patientsystem-backend \
+    --name patientsystem-user \
     --network patientsystem-net \
-    -p 8080:8080 \
-    patientsystem-backend
+    -p 8081:8081 \
+    patientsystem-user
 
 
 
