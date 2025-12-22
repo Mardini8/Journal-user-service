@@ -26,4 +26,7 @@ public class User {
 
     @Column(unique = true)
     private String foreignId;  // Kopplar till Patient/Practitioner personnummer
+
+    @Column(unique = true)
+    private String keycloakId;  // Kopplar till Keycloak user ID
 }

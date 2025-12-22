@@ -5,5 +5,6 @@ public record UserDTO(
         String username,
         String email,
         String role,
-        String foreignId
+        String foreignId,
+        String keycloakId
 ) {}
