@@ -4,14 +4,21 @@ import com.journalSystem.user_service.model.Role;
 import com.journalSystem.user_service.model.User;
 import com.journalSystem.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+
     private final UserRepository userRepository;
+    private final KeycloakService keycloakService;
 
     /**
      * Legacy register method - for non-Keycloak registration
@@ -67,7 +74,19 @@ public class AuthService {
         user.setRole(role);
         user.setForeignId(foreignId);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        logger.info("User profile saved to database: {} with role {}", username, role);
+
+        // Also assign role in Keycloak
+        try {
+            keycloakService.assignRoleToUser(keycloakId, role.name().toLowerCase());
+            logger.info("Role '{}' assigned to user '{}' in Keycloak", role.name(), keycloakId);
+        } catch (Exception e) {
+            logger.warn("Could not assign role in Keycloak (non-critical): {}", e.getMessage());
+            // Don't fail - user-service DB is the source of truth
+        }
+
+        return savedUser;
     }
 
     /**
@@ -104,5 +123,12 @@ public class AuthService {
 
     public Optional<User> getUserByForeignId(String foreignId) {
         return userRepository.findByForeignId(foreignId);
+    }
+
+    /**
+     * Get all users (for admin/doctor purposes)
+     */
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
